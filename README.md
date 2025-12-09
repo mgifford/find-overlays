@@ -1,145 +1,93 @@
 # Accessibility Overlay Scanner
 
-This tool scans a list of URLs (from a sitemap, CSV file, or remote URL) to detect the presence of "Accessibility Overlays" (e.g., AccessiBe, UserWay, AudioEye) and other 3rd-party widgets that may impact accessibility.
+Scan a list of URLs (from a sitemap, CSV file, or remote URL) to detect the presence of accessibility overlays (e.g., AccessiBe, UserWay, AudioEye) and common third‑party widgets. Produces a CSV report and prints a statistical summary.
 
-It generates a CSV report identifying which domains are using which overlays and provides a statistical summary at the end of the scan.
+## Requirements
+- Python 3.8+
+- Works on macOS/Linux/Windows. For macOS/Linux, use a virtual environment.
 
-## 1. Installation
-
-This project requires Python 3. Because modern macOS/Linux environments are "externally managed," it is best to use a virtual environment.
-
-### Step 1: Create a Virtual Environment
-Run this command in your project folder to create an isolated environment:
+## Setup
+Create and activate a virtual environment, then install dependencies.
 
 ```bash
+# From the project root
 python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# .\venv\Scripts\activate  # Windows (PowerShell or CMD)
 
+pip install requests
+```
 
-Step 2: Activate the Environment
-You must activate the environment every time you want to run the script:
-macOS / Linux:
+## Usage
+You can pass a local file path (`.csv`/`.xml`/plain list) or a remote URL to a CSV/Sitemap.
 
-Bash
+```bash
+python find-overlay.py <source>
 
-
-source venv/bin/activate
-
-
-(You should see (venv) appear at the start of your terminal prompt).
-Windows:
-
-Bash
-
-
-.\venv\Scripts\activate
-
-
-Step 3: Install Dependencies
-Install the required libraries:
-
-Bash
-
-
-pip install requests beautifulsoup4
-
-
-2. Usage
-You can feed the script a remote URL (Sitemap/CSV) or a local file path.
-Basic Command
-This will scan the file and generate a report automatically named based on the input file and today's date (e.g., current-full-overlays-2025-12-09.csv).
-
-Bash
-
-
+# Examples
 python find-overlay.py current-full.csv
+python find-overlay.py https://example.com/sitemap.xml
 
-
-Command Line Arguments
-Argument
-Description
-source
-(Required) Path to local file (.csv, .xml) or URL.
---output
-Custom output filename (overrides the auto-generated date name).
---simple
-Outputs a CSV with only two columns: url and detected_overlay.
---no-csv
-Runs the scan and prints stats to the console but does not save a file.
-
-Examples
-1. Scan a local CSV and get a simple report (URL + Overlay only):
-
-Bash
-
-
+# Simple two‑column output (url, detected_overlay)
 python find-overlay.py current-full.csv --simple
 
-
-Output file: current-full-overlays-2025-12-09.csv
-2. Scan a remote Sitemap XML:
-
-Bash
-
-
-python find-overlay.py [https://example.com/sitemap.xml](https://example.com/sitemap.xml)
-
-
-3. Run a "Dry Run" (Stats only, no file saved):
-
-Bash
-
-
+# Stats only, no CSV generated
 python find-overlay.py current-full.csv --no-csv
 
+# Custom output filename
+python find-overlay.py current-full.csv --output my-report.csv
+```
 
-3. Input File Formats
-The tool is robust and accepts two main formats:
-1. Structured CSV (e.g., Government Data)
-If your CSV has headers, the tool looks for a column named "Domain name" (or similar). It automatically cleans the data by:
-Ignoring email addresses (e.g., security@agency.gov).
-Adding https:// if missing.
-Deduplicating domains (only scans example.com once, even if listed 50 times).
-2. Simple List
-A text file or simple CSV with just one URL per line works perfectly too.
-4. Output & Statistics
-CSV Report
-The default output contains:
-url: The scanned URL.
-status: HTTP Status Code (200, 404, etc.).
-detected_overlay: Name of the overlay found (e.g., "UserWay") or "None Found".
-other_widgets: Other common widgets detected (e.g., "Intercom", "Zendesk").
-Console Statistics
-At the end of every run, you will see a summary like this:
+### Sample Data
+A small sample CSV is included:
 
-Plaintext
+```text
+samples/sample-domains.csv
+```
 
+Run against the sample:
 
-========================================
-FINAL STATISTICS
-========================================
-Total URLs Scanned: 21470
+```bash
+python find-overlay.py samples/sample-domains.csv
+```
 
---- Status Codes ---
-200: 21000
-404: 400
-Conn Error: 70
+### Arguments
+- `source`: Required. Path to local file (`.csv`, `.xml`, or text) or a URL.
+- `--output`: Custom output filename. Defaults to `<source>-overlays-YYYY-MM-DD.csv`.
+- `--simple`: Output only `url` and `detected_overlay` columns.
+- `--no-csv`: Do not write a CSV; print stats only.
 
---- Overlays Detected ---
-UserWay: 150
-AudioEye: 45
-AccessiBe: 20
+## Input Formats
+The tool accepts two common formats:
+- **Structured CSV**: If headers exist, it looks for a column containing “domain” (e.g., `Domain name`). Automatically cleans data by ignoring email addresses, adding `https://` when missing, and deduplicating domains.
+- **Simple list**: One URL/domain per line, or comma/space‑separated text.
 
---- Summary ---
-Domains with Overlays: 215 (1.00%)
-========================================
+## Output
+When CSV generation is enabled, the default columns are:
+- `url`: Scanned URL
+- `status`: HTTP status code (e.g., 200, 404)
+- `detected_overlay`: Name(s) of overlay(s) found or `None Found`
+- `other_widgets`: Detected common widgets (e.g., Intercom, Zendesk)
 
+The console also prints a summary with status code counts, overlay counts, and the percentage of domains with overlays.
 
-5. Deactivation
-When you are done, exit the virtual environment:
+## Tips
+- Large sources: prefer sitemaps or deduplicated CSVs to reduce scan time.
+- Network errors/timeouts are counted and shown in the final stats.
 
+### Rate Limiting & Timeouts
+- The scanner uses a per‑request timeout of 10 seconds. Slow or non‑responsive sites will be marked as `Timeout` or `Conn Error` in the results.
+- There is no built‑in rate limiting or concurrency; requests are made sequentially to avoid stressing servers.
+- For very large scans, consider splitting your input file and running multiple smaller batches, or pausing between runs.
+- If you need stricter pacing, you can add a small sleep between requests in `scan_domain` (e.g., `time.sleep(0.25)` after each request).
+
+## Deactivate
+Exit the virtual environment when you’re done:
+
+```bash
+deactivate
+```
 Bash
 
-
-deactivate
 
 

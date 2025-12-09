@@ -1,0 +1,13 @@
+url,status,detected_overlay,other_widgets
+https://bbc.co.uk,200,None Found,
+https://twitter.com,200,None Found,
+https://syracuseut.gov,200,AudioEye,Zendesk
+https://wikipedia.org,200,None Found,
+https://facebook.com,400,None Found,
+https://cnn.com,200,None Found,
+https://google.com,200,None Found,
+https://apple.com,200,None Found,
+https://nytimes.com,200,None Found,
+https://www.microsoft.com,200,None Found,
+http://independencemo.gov,200,UserWay,
+https://amazon.com,200,None Found,

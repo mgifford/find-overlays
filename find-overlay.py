@@ -190,6 +190,7 @@ def main():
     parser.add_argument("--output", help="Custom output filename (optional)")
     parser.add_argument("--simple", action="store_true", help="Output only URL and Overlay columns")
     parser.add_argument("--no-csv", action="store_true", help="Do not generate a CSV file (stats only)")
+    parser.add_argument("--limit", type=int, default=None, help="Limit number of unique domains to scan")
     
     if len(sys.argv) == 1:
         source_input = input("Enter path or URL to sitemap/csv: ")
@@ -200,6 +201,8 @@ def main():
     # 1. Get URLs
     raw_urls = fetch_urls_from_source(args.source)
     unique_urls = list(set(raw_urls))
+    if args.limit is not None and args.limit > 0:
+        unique_urls = unique_urls[:args.limit]
     print(f"Found {len(unique_urls)} unique domains to scan.")
     
     # 2. Stats Containers

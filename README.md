@@ -49,6 +49,7 @@ Run against the sample:
 
 ```bash
 python find-overlay.py samples/sample-domains.csv
+python find-overlay.py samples/sample-domains.csv --limit 100
 ```
 
 ### Arguments
@@ -56,6 +57,7 @@ python find-overlay.py samples/sample-domains.csv
 - `--output`: Custom output filename. Defaults to `<source>-overlays-YYYY-MM-DD.csv`.
 - `--simple`: Output only `url` and `detected_overlay` columns.
 - `--no-csv`: Do not write a CSV; print stats only.
+ - `--limit <N>`: Limit the number of unique domains scanned to `N` (applied after deduplication). Useful for sampling large CSVs.
 
 ## Input Formats
 The tool accepts two common formats:
@@ -87,7 +89,7 @@ Exit the virtual environment when you’re done:
 ```bash
 deactivate
 ```
-
+Bash
 
 
 

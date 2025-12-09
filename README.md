@@ -89,7 +89,7 @@ Exit the virtual environment when you’re done:
 ```bash
 deactivate
 ```
-Bash
+
 
 
 
